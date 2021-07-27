@@ -15,7 +15,7 @@ var suffixes = map[string]int{
 }
 
 func parseStringWithSuffixInNumber(s string) (float64, error) {
-	for key, _ := range suffixes {
+	for key, val := range suffixes {
 		i := strings.Index(s, key)
 		if i > -1 {
 			numberString := s[:i]
@@ -23,23 +23,23 @@ func parseStringWithSuffixInNumber(s string) (float64, error) {
 			if err != nil {
 				return 0, err
 			}
-			numberInBytes := number * float64(suffixes[key])
+			numberInBytes := number * float64(val)
 			return numberInBytes, nil
 		}
 	}
 	return 0, errors.New("wrong number")
 }
 
-func sortByNumberWithSuffix(numberColumn int, lines []string) ([]string, error) {
+func sortByNumberWithSuffix(numberColumn int, lines []string, neededToReverse bool) ([]string, error) {
 	var keys []float64
 	keyColumnToLineMap := map[float64][]string{}
 	for _, line := range lines {
-		s := strings.Fields(line)
-		if len(s) < numberColumn {
-			return nil, errors.New("didn't find the column")
-		}
-
 		if line != "" {
+			s := strings.Fields(line)
+			if len(s) < numberColumn {
+				return nil, errors.New("didn't find the column")
+			}
+
 			key, err := parseStringWithSuffixInNumber(s[numberColumn])
 			if err != nil {
 				return nil, err
@@ -49,7 +49,11 @@ func sortByNumberWithSuffix(numberColumn int, lines []string) ([]string, error) 
 		}
 	}
 
-	sort.Float64s(keys)
+	if neededToReverse {
+		sort.Sort(sort.Reverse(sort.Float64Slice(keys)))
+	} else {
+		sort.Float64s(keys)
+	}
 	var result []string
 
 	for _, key := range keys {

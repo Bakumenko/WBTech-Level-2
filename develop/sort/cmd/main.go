@@ -1,55 +1,84 @@
 package main
 
 import (
-	"bytes"
-	"flag"
-	"fmt"
+	"bufio"
 	"io"
 	"mysort/pkg"
+	"os"
+	"strings"
 )
 
-func main() {
-	//dir := os.Args[1]
-	//fmt.Println(dir)
-
-	r, _ := io.Pipe()
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
-	data := buf.String()
-	fmt.Print(data)
-
-	//file, err := os.Open("develop/sort/factory.txt")
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//
-	//data := make([]byte, 100)
-	//_, err = file.Read(data)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-
-	text := string(data)
-	flags := flag.Args()
-
-	sorter, err := pkg.InitSorter(text, flags)
-	if err != nil {
-		println(err)
-	}
-
-	if len(flags) == 0 {
-		println("empty flags")
-	} else if len(flags) == 1 && flag.Arg(1) == "-c" {
-		println(sorter.CheckForSort())
-	} else {
-		err = sorter.Start()
+func readLinesFromSource(in io.Reader) ([]string, error) {
+	var lines []string
+	reader := bufio.NewReader(in)
+	for {
+		line, err := reader.ReadString('\n')
+		line = strings.TrimSuffix(line, "\n")
+		lines = append(lines, line)
+		if err == io.EOF {
+			break
+		}
 		if err != nil {
-			println(err)
-		} else {
-			newText := sorter.GetText()
-			println(newText)
+			return nil, err
 		}
 	}
+	return lines, nil
+}
+
+func printLines(lines []string) {
+	for _, line := range lines {
+		println(line)
+	}
+}
+
+func main() {
+	flags := os.Args[1:]
+	stat, err := os.Stdin.Stat()
+	var sourceForRead io.Reader
+	if err != nil {
+		println(err.Error())
+		return
+	}
+
+	if (stat.Mode() & os.ModeNamedPipe) != 0 {
+		sourceForRead = os.Stdin
+		println("read from stdin")
+	} else {
+		if len(flags) == 0 {
+			println("input file name")
+			return
+		}
+		fileName := flags[0]
+		flags = flags[1:]
+		file, err := os.Open(fileName)
+		if err != nil {
+			println(err.Error())
+			return
+		}
+		sourceForRead = file
+		println("read from file")
+	}
+
+	lines, err := readLinesFromSource(sourceForRead)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	printLines(lines)
+	printLines(flags)
+
+	sorter, err := pkg.InitSorter(lines, flags)
+	if err != nil {
+		println(err)
+		return
+	}
+
+	err = sorter.Start()
+	if err != nil {
+		println(err)
+		return
+	}
+
+	result := sorter.GetText()
+	println("result:" + result)
 }

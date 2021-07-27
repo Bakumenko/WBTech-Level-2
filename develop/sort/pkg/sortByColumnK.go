@@ -1,28 +1,33 @@
 package pkg
 
 import (
-	"errors"
 	"sort"
 	"strings"
 )
 
-func sortByColumn(numberColumn int, lines []string) ([]string, error) {
+func sortByColumn(numberColumns []int, lines []string, neededToReverse bool) ([]string, error) {
 	var keys []string
 	keyColumnToLineMap := map[string][]string{}
 	for _, line := range lines {
-		s := strings.Fields(line)
-		if len(s) < numberColumn {
-			return nil, errors.New("didn't find the column")
-		}
-
 		if line != "" {
-			key := s[numberColumn]
+			lineBySpace := strings.Fields(line)
+			var lineByNeededColumns []string
+			for _, val := range numberColumns {
+				if val < len(lineBySpace) {
+					lineByNeededColumns = append(lineByNeededColumns, lineBySpace[val])
+				}
+			}
+
+			key := strings.Join(lineByNeededColumns, " ")
 			keyColumnToLineMap[key] = append(keyColumnToLineMap[key], line)
 			keys = append(keys, key)
 		}
 	}
-
-	sort.Strings(keys)
+	if neededToReverse {
+		sort.Sort(sort.Reverse(sort.StringSlice(keys)))
+	} else {
+		sort.Strings(keys)
+	}
 	var result []string
 
 	for _, key := range keys {
