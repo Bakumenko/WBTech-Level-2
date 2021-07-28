@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func excludeTargetStringFromLines(textByLines []string, targerString string, ignoreCase bool, lineNumber bool) ([]string, error) {
+func grepExcludeTargetStringFromLines(textByLines []string, targerString string, ignoreCase bool, lineNumber bool) ([]string, error) {
 	result := []string{}
 	if ignoreCase {
 		targerString = strings.ToLower(targerString)
@@ -18,6 +18,7 @@ func excludeTargetStringFromLines(textByLines []string, targerString string, ign
 			if lineNumber {
 				line = strconv.Itoa(index+1) + ". " + line
 			}
+
 			result = append(result, line)
 		}
 	}

@@ -1,12 +1,12 @@
 package pkg
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
 
-func printLinesAfterSearched(textByLines []string, targerString string, countLines int, ignoreCase bool, lineNumber bool) ([]string, error) {
+func grepLinesNearSearched(textByLines []string, targerString string, before int, after int, ignoreCase bool, lineNumber bool) ([]string, error) {
+	var result []string
 	if ignoreCase {
 		targerString = strings.ToLower(targerString)
 	}
@@ -15,16 +15,16 @@ func printLinesAfterSearched(textByLines []string, targerString string, countLin
 			line = strings.ToLower(line)
 		}
 		if strings.Contains(line, targerString) {
-			lenSlice := min(len(textByLines)-index, countLines)
-			result := make([]string, lenSlice)
-			for i := index; i <= lenSlice; i++ {
+			lenBefore := min(index, before)
+			lenAfter := min(len(textByLines)-index-1, after)
+			//lenSlice := lenBefore + lenAfter
+			for i := index - lenBefore; i <= index+lenAfter; i++ {
 				if lineNumber {
 					textByLines[i] = strconv.Itoa(i+1) + ". " + textByLines[i]
 				}
 				result = append(result, textByLines[i])
 			}
-			return result, nil
 		}
 	}
-	return nil, errors.New("substring didn't found")
+	return result, nil
 }
