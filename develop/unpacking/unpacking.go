@@ -17,9 +17,9 @@ func UnpackingString(s string) (string, error) {
 		stringVal := string(val)
 
 		if stringVal == "\\" {
-			if i + 1 < len(sliceRunesString) {
-				next := sliceRunesString[i + 1]
-				if string(next) == "\\" || unicode.IsDigit(next){
+			if i+1 < len(sliceRunesString) {
+				next := sliceRunesString[i+1]
+				if string(next) == "\\" || unicode.IsDigit(next) {
 					current = next
 					currentWritten = true
 				} else {
@@ -33,11 +33,19 @@ func UnpackingString(s string) (string, error) {
 			if !currentWritten {
 				return "", errors.New("invalid string")
 			}
-			k, err := strconv.Atoi(stringVal)
-			if err != nil {
-				return "", err
+			var num int
+			for unicode.IsDigit(sliceRunesString[i]) {
+				k, err := strconv.Atoi(stringVal)
+				if err != nil {
+					return "", err
+				}
+				num = num*10 + k
+				i++
+				if i >= len(sliceRunesString) {
+					break
+				}
 			}
-			for j := 0; j < k; i++ {
+			for j := 0; j < num; i++ {
 				content = append(content, current)
 				currentWritten = false
 			}
