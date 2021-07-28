@@ -10,7 +10,7 @@ import (
 type Sorter struct {
 	textByLines     []string
 	flags           []string
-	targetColumns   []int
+	targetColumn    int
 	neededToReverse bool
 	checkForSort    string
 }
@@ -19,7 +19,7 @@ func InitSorter(lines []string, fs []string) (*Sorter, error) {
 	if lines == nil {
 		return nil, errors.New("empty text")
 	}
-	return &Sorter{lines, fs, nil, false, ""}, nil
+	return &Sorter{lines, fs, -1, false, ""}, nil
 }
 
 func (s *Sorter) GetText() string {
@@ -57,13 +57,16 @@ func (s *Sorter) Start() error {
 			}
 
 		case "-k":
-			columns := s.flags[i+1]
-			i++
-			sliceColumns, err := parseNumberOfColumnsFromString(columns)
-			if err != nil {
-				return err
+			if i+1 < len(s.flags) {
+				column, err := strconv.Atoi(s.flags[i+1])
+				if err != nil {
+					return err
+				}
+				s.targetColumn = column - 1
+				i++
+			} else {
+				return errors.New("input number of column")
 			}
-			s.targetColumns = sliceColumns
 
 		default:
 			flagsWithoutPreSortedFlags = append(flagsWithoutPreSortedFlags, flag)
@@ -71,16 +74,12 @@ func (s *Sorter) Start() error {
 	}
 
 	s.flags = flagsWithoutPreSortedFlags
-	//if len(s.flags) == 0 {
-	//	sort.Strings(s.textByLines)
-	//	return nil
-	//}
 
-	if len(s.flags) > 2 {
-		return errors.New("incompatible flags" + strings.Join(s.flags, " "))
+	if len(s.flags) >= 2 {
+		return errors.New("incompatible flags: " + strings.Join(s.flags, " "))
 	} else if len(s.flags) == 0 {
-		if s.targetColumns != nil {
-			sortedLines, err := sortByColumn(s.targetColumns, s.textByLines, s.neededToReverse)
+		if s.targetColumn != -1 {
+			sortedLines, err := sortByColumn(s.targetColumn, s.textByLines, s.neededToReverse)
 			if err != nil {
 				return err
 			}
@@ -92,23 +91,21 @@ func (s *Sorter) Start() error {
 		lastFlag := s.flags[0]
 		switch lastFlag {
 		case "-n":
-			if len(s.targetColumns) == 1 {
-				sortedText, err := sortByNumber(s.targetColumns[0], s.textByLines, s.neededToReverse)
-				if err != nil {
-					return err
-				}
-				s.textByLines = sortedText
+			sortedText, err := sortByNumber(s.targetColumn, s.textByLines, s.neededToReverse)
+			if err != nil {
+				return err
 			}
+			s.textByLines = sortedText
 
 		case "-h":
-			sortedText, err := sortByNumberWithSuffix(s.targetColumns[0], s.textByLines, s.neededToReverse)
+			sortedText, err := sortByNumberWithSuffix(s.targetColumn, s.textByLines, s.neededToReverse)
 			if err != nil {
 				return err
 			}
 			s.textByLines = sortedText
 
 		case "-M":
-			sortedText, err := sortByMonth(s.targetColumns[0], s.textByLines, s.neededToReverse)
+			sortedText, err := sortByMonth(s.targetColumn, s.textByLines, s.neededToReverse)
 			if err != nil {
 				return err
 			}
@@ -140,35 +137,4 @@ func simpleSort(lines []string, neededToReverse bool) []string {
 		sort.Strings(lines)
 	}
 	return lines
-}
-
-func parseNumberOfColumnsFromString(s string) ([]int, error) {
-	var columns []int
-	if strings.Contains(s, ",") {
-		sliceStringColumns := strings.Split(s, ",")
-		if len(sliceStringColumns) > 2 {
-			return nil, errors.New("incorrect columns")
-		}
-
-		firstColumn, err := strconv.Atoi(sliceStringColumns[0])
-		if err != nil {
-			return nil, err
-		}
-
-		lastColumn, err := strconv.Atoi(sliceStringColumns[1])
-		if err != nil {
-			return nil, err
-		}
-		for i := firstColumn - 1; i < lastColumn-1; i++ {
-			columns = append(columns, i)
-		}
-	} else {
-		column, err := strconv.Atoi(s)
-		if err != nil {
-			return nil, err
-		}
-		columns = append(columns, column)
-	}
-	sort.Ints(columns)
-	return columns, nil
 }

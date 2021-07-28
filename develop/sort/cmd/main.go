@@ -25,12 +25,6 @@ func readLinesFromSource(in io.Reader) ([]string, error) {
 	return lines, nil
 }
 
-func printLines(lines []string) {
-	for _, line := range lines {
-		println(line)
-	}
-}
-
 func main() {
 	flags := os.Args[1:]
 	stat, err := os.Stdin.Stat()
@@ -56,7 +50,6 @@ func main() {
 			return
 		}
 		sourceForRead = file
-		println("read from file")
 	}
 
 	lines, err := readLinesFromSource(sourceForRead)
@@ -64,21 +57,18 @@ func main() {
 		println(err.Error())
 		return
 	}
-	printLines(lines)
-	printLines(flags)
-
 	sorter, err := pkg.InitSorter(lines, flags)
 	if err != nil {
-		println(err)
+		println(err.Error())
 		return
 	}
 
 	err = sorter.Start()
 	if err != nil {
-		println(err)
+		println(err.Error())
 		return
 	}
 
 	result := sorter.GetText()
-	println("result:" + result)
+	println(result)
 }

@@ -1,2 +1,7 @@
-aoleg
-oleg
+aoleg a
+oleg c
+21 a
+101 c
+boleg t
+1 d
+100000000 a
