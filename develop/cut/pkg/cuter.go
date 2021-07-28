@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -10,65 +9,71 @@ import (
 type Cuter struct {
 	textByLines                  []string
 	flags                        []string
+	resultLines                  []string
 	outputLinesOnlyWithSeparator bool
-	delimiter                    string `defalult:"\t"`
+	delimiter                    string
 	targetFields                 []int
-	result                       []string
 }
 
-func splitLines(s string) []string {
-	var lines []string
-	sc := bufio.NewScanner(strings.NewReader(s))
-	for sc.Scan() {
-		lines = append(lines, sc.Text())
-	}
-	return lines
-}
-
-func InitCuter(t string, fs []string, targerString string) (*Cuter, error) {
-	if t == "" {
+func InitCuter(lines []string, fs []string) (*Cuter, error) {
+	if lines == nil {
 		return nil, errors.New("empty text")
 	}
-
-	lines := strings.Split(t, "\n")
-	//lines := splitLines(t)
-	return &Cuter{textByLines: lines, flags: fs}, nil
+	return &Cuter{lines, fs, nil, false, "\t", nil}, nil
 }
 
-func parseStringToSliceInt(s string) ([]int, error) {
-	var is []int
-	if err := json.Unmarshal([]byte(s), &is); err != nil {
-		return nil, errors.New("error in fields")
-	}
-	return is, nil
+func (c *Cuter) GetText() string {
+	return strings.Join(c.resultLines, "\n")
 }
 
 func (c *Cuter) Start() error {
+	err := c.switchFlags()
+	if err != nil {
+		return err
+	}
+
+	if c.targetFields != nil {
+		needFields := cutFields(c.textByLines, c.delimiter, c.targetFields, c.outputLinesOnlyWithSeparator)
+		c.resultLines = needFields
+	} else {
+		return errors.New("input fields")
+	}
+
+	return nil
+}
+
+func (c *Cuter) switchFlags() error {
 	for i := 0; i < len(c.flags); i++ {
 		flag := c.flags[i]
 		switch flag {
 		case "-d":
-			c.delimiter = c.flags[i+1]
-			i++
+			if i+1 < len(c.flags) {
+				c.delimiter = c.flags[i+1]
+				i++
+			} else {
+				return errors.New("input delimiter")
+			}
 
 		case "-s":
 			c.outputLinesOnlyWithSeparator = true
 
 		case "-f":
-			fields, err := parseStringToSliceInt(c.flags[i+1])
-			if err != nil {
-				return err
+			if i+1 < len(c.flags) {
+				fieldsSliceString := "[" + c.flags[i+1] + "]"
+				var fieldsIntSlice []int
+				if err := json.Unmarshal([]byte(fieldsSliceString), &fieldsIntSlice); err != nil {
+					panic(err)
+				}
+				i++
+				c.targetFields = fieldsIntSlice
+			} else {
+				return errors.New("input fields")
 			}
-			i++
-			result := chooseFields(c.textByLines, c.delimiter, fields, c.outputLinesOnlyWithSeparator)
-			c.result = result
+
 		default:
-			return errors.New("unknown flag")
+			return errors.New("unknown flag: " + c.flags[i])
 		}
 	}
-	return nil
-}
 
-func (c *Cuter) GetText() string {
-	return strings.Join(c.textByLines, "\n")
+	return nil
 }
