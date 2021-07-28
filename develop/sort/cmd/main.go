@@ -36,10 +36,8 @@ func main() {
 
 	if (stat.Mode() & os.ModeNamedPipe) != 0 {
 		sourceForRead = os.Stdin
-		println("read from stdin")
 	} else {
 		if len(flags) == 0 {
-			println("input file name")
 			return
 		}
 		fileName := flags[0]
