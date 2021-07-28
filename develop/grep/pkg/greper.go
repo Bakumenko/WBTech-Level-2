@@ -36,7 +36,7 @@ func (g *Greper) GetText() string {
 }
 
 func (g *Greper) Start() error {
-	err := switchFlags(g)
+	err := g.switchFlags()
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (g *Greper) Start() error {
 	return nil
 }
 
-func switchFlags(g *Greper) error {
+func (g *Greper) switchFlags() error {
 	for i := 0; i < len(g.flags); i++ {
 		flag := g.flags[i]
 		switch flag {
