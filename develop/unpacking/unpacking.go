@@ -2,43 +2,51 @@ package main
 
 import (
 	"errors"
+	"strconv"
 	"unicode"
 )
 
 func UnpackingString(s string) (string, error) {
-	r := []rune(s)
 	content := []rune{}
-	var last rune
-	lastIsWritten := false
+	sliceRunesString := []rune(s)
+	var current rune
+	var currentWritten bool
 
-	for i := 0; i < len(r); i++ {
-		val := r[i]
-		if string(val) == "\\" {
-			if i < len(r)-1 {
-				if string(r[i+1]) == "\\" || unicode.IsDigit(r[i+1]) {
-					last = r[i+1]
-					lastIsWritten = true
-					content = append(content, last)
-					i++
+	for i := 0; i < len(sliceRunesString); i++ {
+		val := sliceRunesString[i]
+		stringVal := string(val)
+
+		if stringVal == "\\" {
+			if i + 1 < len(sliceRunesString) {
+				next := sliceRunesString[i + 1]
+				if string(next) == "\\" || unicode.IsDigit(next){
+					current = next
+					currentWritten = true
 				} else {
 					return "", errors.New("invalid string")
 				}
 			} else {
 				return "", errors.New("invalid string")
 			}
+			i++
 		} else if unicode.IsDigit(val) {
-			if lastIsWritten {
-				for i := 0; i < int(val-'0')-1; i++ {
-					content = append(content, last)
-					lastIsWritten = false
-				}
-			} else {
+			if !currentWritten {
 				return "", errors.New("invalid string")
 			}
+			k, err := strconv.Atoi(stringVal)
+			if err != nil {
+				return "", err
+			}
+			for j := 0; j < k; i++ {
+				content = append(content, current)
+				currentWritten = false
+			}
 		} else {
-			content = append(content, val)
-			last = val
-			lastIsWritten = true
+			if currentWritten {
+				content = append(content, current)
+			}
+			current = val
+			currentWritten = true
 		}
 	}
 
