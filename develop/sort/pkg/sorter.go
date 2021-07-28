@@ -31,49 +31,10 @@ func (s *Sorter) GetText() string {
 }
 
 func (s *Sorter) Start() error {
-	var flagsWithoutPreSortedFlags []string
-	for i := 0; i < len(s.flags); i++ {
-		flag := s.flags[i]
-		switch flag {
-		case "-r":
-			s.neededToReverse = true
-
-		case "-u":
-			linesWithoutDublicate, err := deleteOfDublicates(s.textByLines)
-			if err != nil {
-				return err
-			}
-			s.textByLines = linesWithoutDublicate
-
-		case "-c":
-			if len(s.flags) != 1 {
-				return errors.New("-c is solo flag")
-			}
-
-			if equalSlices(s.textByLines, simpleSort(s.textByLines, false)) {
-				s.checkForSort = "sorted"
-			} else {
-				s.checkForSort = "not sorted"
-			}
-
-		case "-k":
-			if i+1 < len(s.flags) {
-				column, err := strconv.Atoi(s.flags[i+1])
-				if err != nil {
-					return err
-				}
-				s.targetColumn = column - 1
-				i++
-			} else {
-				return errors.New("input number of column")
-			}
-
-		default:
-			flagsWithoutPreSortedFlags = append(flagsWithoutPreSortedFlags, flag)
-		}
+	err := s.switchFlags()
+	if err != nil {
+		return err
 	}
-
-	s.flags = flagsWithoutPreSortedFlags
 
 	if len(s.flags) >= 2 {
 		return errors.New("incompatible flags: " + strings.Join(s.flags, " "))
@@ -137,4 +98,51 @@ func simpleSort(lines []string, neededToReverse bool) []string {
 		sort.Strings(lines)
 	}
 	return lines
+}
+
+func (s *Sorter) switchFlags() error {
+	var flagsWithoutPreSortedFlags []string
+	for i := 0; i < len(s.flags); i++ {
+		flag := s.flags[i]
+		switch flag {
+		case "-r":
+			s.neededToReverse = true
+
+		case "-u":
+			linesWithoutDublicate, err := deleteOfDublicates(s.textByLines)
+			if err != nil {
+				return err
+			}
+			s.textByLines = linesWithoutDublicate
+
+		case "-c":
+			if len(s.flags) != 1 {
+				return errors.New("-c is solo flag")
+			}
+
+			if equalSlices(s.textByLines, simpleSort(s.textByLines, false)) {
+				s.checkForSort = "sorted"
+			} else {
+				s.checkForSort = "not sorted"
+			}
+
+		case "-k":
+			if i+1 < len(s.flags) {
+				column, err := strconv.Atoi(s.flags[i+1])
+				if err != nil {
+					return err
+				}
+				s.targetColumn = column - 1
+				i++
+			} else {
+				return errors.New("input number of column")
+			}
+
+		default:
+			flagsWithoutPreSortedFlags = append(flagsWithoutPreSortedFlags, flag)
+		}
+	}
+
+	s.flags = flagsWithoutPreSortedFlags
+	return nil
 }
