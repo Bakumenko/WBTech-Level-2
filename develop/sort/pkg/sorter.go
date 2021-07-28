@@ -92,12 +92,16 @@ func equalSlices(a, b []string) bool {
 }
 
 func simpleSort(lines []string, neededToReverse bool) []string {
-	if neededToReverse {
-		sort.Sort(sort.Reverse(sort.StringSlice(lines)))
-	} else {
-		sort.Strings(lines)
+	var lowerLinesSlice []string
+	for _, line := range lines {
+		lowerLinesSlice = append(lowerLinesSlice, line)
 	}
-	return lines
+	if neededToReverse {
+		sort.Sort(sort.Reverse(sort.StringSlice(lowerLinesSlice)))
+	} else {
+		sort.Strings(lowerLinesSlice)
+	}
+	return lowerLinesSlice
 }
 
 func (s *Sorter) switchFlags() error {
