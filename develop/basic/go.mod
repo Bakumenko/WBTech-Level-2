@@ -1,4 +1,4 @@
-module basic
+module "ctime"
 
 go 1.16
 
