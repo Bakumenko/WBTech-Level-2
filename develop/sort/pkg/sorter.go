@@ -93,15 +93,22 @@ func equalSlices(a, b []string) bool {
 
 func simpleSort(lines []string, neededToReverse bool) []string {
 	var lowerLinesSlice []string
+	var mapLowerLinesToLines map[string]string
 	for _, line := range lines {
-		lowerLinesSlice = append(lowerLinesSlice, line)
+		lowerLine := strings.ToLower(line)
+		lowerLinesSlice = append(lowerLinesSlice, lowerLine)
+		mapLowerLinesToLines[lowerLine] = line
 	}
 	if neededToReverse {
 		sort.Sort(sort.Reverse(sort.StringSlice(lowerLinesSlice)))
 	} else {
 		sort.Strings(lowerLinesSlice)
 	}
-	return lowerLinesSlice
+	var result []string
+	for _, key := range lowerLinesSlice {
+		result = append(result, mapLowerLinesToLines[key])
+	}
+	return result
 }
 
 func (s *Sorter) switchFlags() error {
@@ -140,6 +147,11 @@ func (s *Sorter) switchFlags() error {
 				i++
 			} else {
 				return errors.New("input number of column")
+			}
+
+		case "-b":
+			for _, line := range s.textByLines {
+				line = strings.TrimLeft(line, " ")
 			}
 
 		default:
