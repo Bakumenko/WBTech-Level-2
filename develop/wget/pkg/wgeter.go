@@ -25,7 +25,6 @@ func InitWgeter(url string, filename string) (*Wgeter, error) {
 func (w *Wgeter) Start() error {
 	fullURLFile := w.url
 
-	// Build fileName from fullPath
 	fileURL, err := url.Parse(fullURLFile)
 	if err != nil {
 		return err
@@ -36,7 +35,6 @@ func (w *Wgeter) Start() error {
 		w.fileName = segments[len(segments)-1]
 	}
 
-	// Create blank file
 	file, err := os.Create(w.fileName)
 	if err != nil {
 		return err
@@ -47,7 +45,7 @@ func (w *Wgeter) Start() error {
 			return nil
 		},
 	}
-	// Put content on file
+
 	resp, err := client.Get(fullURLFile)
 	if err != nil {
 		return err
