@@ -44,11 +44,11 @@ func startServer(router *http.ServeMux, h *handler.Handler) error {
 	router.HandleFunc("/create_event", h.CreateEvent)
 	router.HandleFunc("/update_event", h.UpdateEvent)
 	router.HandleFunc("/delete_event", h.DeleteEvent)
-	configuredRouter := ExampleMiddleware(router)
+	configuredRouter := LoggingMiddleware(router)
 	return http.ListenAndServe(":"+webPort, configuredRouter)
 }
 
-func ExampleMiddleware(h http.Handler) http.Handler {
+func LoggingMiddleware(h http.Handler) http.Handler {
 	logFn := func(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
