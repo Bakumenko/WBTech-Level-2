@@ -23,10 +23,13 @@ func run() error {
 	}
 
 	repos := repository.NewRepository(db)
-
 	hndlr := handler.NewHandler(repos)
 	router := http.NewServeMux()
-	err = handleRequests(router, hndlr)
+
+	addr := "127.0.0.1:" + webPort
+	logrus.WithField("addr", addr).Info("starting server")
+
+	err = startServer(router, hndlr)
 	if err != nil {
 		return err
 	}
@@ -34,36 +37,32 @@ func run() error {
 	return nil
 }
 
-func handleRequests(router *http.ServeMux, h *handler.Handler) error {
-	http.HandleFunc("/events_for_day", h.GetEventsForDay)
-	http.HandleFunc("/events_for_week", h.GetEventsForWeek)
-	http.HandleFunc("/events_for_month", h.GetEventsForMonth)
-	http.HandleFunc("/create_event", h.CreateEvent)
-	http.HandleFunc("/update_event", h.UpdateEvent)
-	http.HandleFunc("/delete_event", h.DeleteEvent)
-	//configuredRouter := ExampleMiddleware(router)
-	return http.ListenAndServe(":"+webPort, nil)
+func startServer(router *http.ServeMux, h *handler.Handler) error {
+	router.HandleFunc("/events_for_day", h.GetEventsForDay)
+	router.HandleFunc("/events_for_week", h.GetEventsForWeek)
+	router.HandleFunc("/events_for_month", h.GetEventsForMonth)
+	router.HandleFunc("/create_event", h.CreateEvent)
+	router.HandleFunc("/update_event", h.UpdateEvent)
+	router.HandleFunc("/delete_event", h.DeleteEvent)
+	configuredRouter := ExampleMiddleware(router)
+	return http.ListenAndServe(":"+webPort, configuredRouter)
 }
 
 func ExampleMiddleware(h http.Handler) http.Handler {
-	// We wrap our anonymous function, and cast it to a http.HandlerFunc
-	// Because our function signature matches ServeHTTP(w, r), this allows
-	// our function (type) to implicitly satisify the http.Handler interface.
 	logFn := func(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		uri := r.RequestURI
 		method := r.Method
-		h.ServeHTTP(rw, r) // serve the original request
-
 		duration := time.Since(start)
 
-		// log request details
 		logrus.WithFields(logrus.Fields{
 			"uri":      uri,
 			"method":   method,
 			"duration": duration,
-		})
+		}).Info("input request")
+
+		h.ServeHTTP(rw, r)
 	}
 	return http.HandlerFunc(logFn)
 }
