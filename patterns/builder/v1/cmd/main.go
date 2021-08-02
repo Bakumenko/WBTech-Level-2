@@ -1,7 +1,7 @@
 package main
 
 import (
-	"builder/pkg"
+	"builderV1/pkg"
 	"fmt"
 )
 
