@@ -23,10 +23,22 @@ func merge(a, b <-chan int) <-chan int {
 	c := make(chan int)
 	go func() {
 		for {
+			if a == nil && b == nil {
+				close(c)
+				return
+			}
 			select {
-			case v := <-a:
+			case v, ok := <-a:
+				if !ok {
+					a = nil
+					continue
+				}
 				c <- v
-			case v := <-b:
+			case v, ok := <-b:
+				if !ok {
+					b = nil
+					continue
+				}
 				c <- v
 			}
 		}
