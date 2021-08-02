@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -25,9 +26,7 @@ func TestUnpackingString(t *testing.T) {
 	for _, table := range tables {
 		totalS, totalErr := UnpackingString(table.s)
 
-		if totalS != table.res || totalErr == nil && table.err != nil || totalErr != nil && table.err == nil {
-			t.Errorf("UnpackingString of (%v) was incorrect, got: (%v), want: (%v) with error: (%v), wanted error: (%v)\n",
-				table.s, totalS, table.res, totalErr, table.err)
-		}
+		assert.Equal(t, totalS, table.res)
+		assert.Equal(t, totalErr, table.err)
 	}
 }
