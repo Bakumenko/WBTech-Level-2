@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func sortByColumn(numberColumn int, lines []string, neededToReverse bool) ([]string, error) {
-	var keys []string
+func sortByColumn(numberColumn int, lines []string, neededToReverse bool) []string {
+	keys := []string{}
 	keyColumnToLineMap := map[string][]string{}
 	for _, line := range lines {
 		sortedField := getFieldForSortFromLines(numberColumn, line)
@@ -26,5 +26,5 @@ func sortByColumn(numberColumn int, lines []string, neededToReverse bool) ([]str
 	for _, key := range keys {
 		result = append(result, keyColumnToLineMap[key]...)
 	}
-	return result, nil
+	return result
 }

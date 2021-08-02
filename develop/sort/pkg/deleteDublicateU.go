@@ -1,7 +1,7 @@
 package pkg
 
-func deleteOfDublicates(lines []string) ([]string, error) {
-	var result []string
+func deleteOfDublicates(lines []string) []string {
+	result := []string{}
 	keyToUniqMap := map[string]struct{}{}
 
 	for _, line := range lines {
@@ -11,5 +11,5 @@ func deleteOfDublicates(lines []string) ([]string, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }

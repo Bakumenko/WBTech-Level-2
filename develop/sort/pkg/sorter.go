@@ -40,10 +40,7 @@ func (s *Sorter) Start() error {
 		return errors.New("incompatible flags: " + strings.Join(s.flags, " "))
 	} else if len(s.flags) == 0 {
 		if s.targetColumn != -1 {
-			sortedLines, err := sortByColumn(s.targetColumn, s.textByLines, s.neededToReverse)
-			if err != nil {
-				return err
-			}
+			sortedLines := sortByColumn(s.targetColumn, s.textByLines, s.neededToReverse)
 			s.textByLines = sortedLines
 		} else {
 			s.textByLines = simpleSort(s.textByLines, s.neededToReverse)
@@ -120,10 +117,7 @@ func (s *Sorter) switchFlags() error {
 			s.neededToReverse = true
 
 		case "-u":
-			linesWithoutDublicate, err := deleteOfDublicates(s.textByLines)
-			if err != nil {
-				return err
-			}
+			linesWithoutDublicate := deleteOfDublicates(s.textByLines)
 			s.textByLines = linesWithoutDublicate
 
 		case "-c":
