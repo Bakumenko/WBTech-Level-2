@@ -6,6 +6,7 @@ import (
 
 func main() {
 	var s = []string{"1", "2", "3"}
+	fmt.Println("cap = ", cap(s))
 	modifySlice(s)
 	fmt.Println(s)
 }
