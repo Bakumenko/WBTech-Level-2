@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type customError struct {
 	msg string
 }
@@ -18,6 +22,11 @@ func test() *customError {
 func main() {
 	var err error
 	err = test()
+	fmt.Println(err)
+	fmt.Printf("%#v\n", err)
+	fmt.Println(err == nil)
+	fmt.Println(err == (*customError)(nil))
+
 	if err != nil {
 		println("error")
 		return
