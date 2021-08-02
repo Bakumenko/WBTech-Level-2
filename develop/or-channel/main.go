@@ -47,5 +47,4 @@ func main() {
 	)
 
 	fmt.Printf("fone after %v", time.Since(start))
-
 }
