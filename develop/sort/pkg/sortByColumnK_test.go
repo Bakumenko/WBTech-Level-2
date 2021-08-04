@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -33,6 +34,7 @@ func Test_sortByColumn(t *testing.T) {
 	for _, table := range tables {
 		result := sortByColumn(table.numberColumn, table.lines, table.neededToReverse)
 
-		assert.Equal(t, result, table.res, fmt.Sprintf("number of column = %v, lines = %v, need to reverse = %v", table.numberColumn, table.lines, table.neededToReverse))
+		inputData := fmt.Sprintf("number of column = %v, lines = %v, need to reverse = %v", table.numberColumn, strings.Join(table.lines, "\n"), table.neededToReverse)
+		assert.Equal(t, result, table.res, inputData)
 	}
 }

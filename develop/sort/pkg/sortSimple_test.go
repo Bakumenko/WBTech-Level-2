@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -22,6 +23,7 @@ func Test_simpleSort(t *testing.T) {
 	for _, table := range tables {
 		result := simpleSort(table.lines, table.neededToReverse)
 
-		assert.Equal(t, result, table.res, fmt.Sprintf("lines = %v, need to reverse = %v", table.lines, table.neededToReverse))
+		inputData := fmt.Sprintf("lines = %v, need to reverse = %v", strings.Join(table.lines, "\n"), table.neededToReverse)
+		assert.Equal(t, result, table.res, inputData)
 	}
 }

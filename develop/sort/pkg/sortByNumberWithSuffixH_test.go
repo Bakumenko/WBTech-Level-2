@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -65,14 +66,14 @@ func Test_sortByNumberWithSuffix(t *testing.T) {
 		neededToReverse bool
 		res             []string
 	}{
-		//{-1, []string{"1G", "1K", "2MB"}, false, []string{"1K", "2MB", "1G"}},
-		//{-1, []string{"1G", "1K", "2MB"}, true, []string{"1G", "2MB", "1K"}},
-		//{-1, []string{"2K", "1kb", "3KB"}, false, []string{"1kb", "2K", "3KB"}},
-		//{-1, []string{"2K", "1kb", "3KB"}, true, []string{"3KB", "2K", "1kb"}},
-		//{0, []string{"2K", "1kb", "3KB"}, false, []string{"1kb", "2K", "3KB"}},
-		//{0, []string{"2K", "1kb", "3KB"}, true, []string{"3KB", "2K", "1kb"}},
-		//{1, []string{"2K", "1kb", "3KB"}, false, []string{"1kb", "2K", "3KB"}},
-		//{1, []string{"2K", "1kb", "3KB"}, true, []string{"3KB", "2K", "1kb"}},
+		{-1, []string{"1G", "1K", "2MB"}, false, []string{"1K", "2MB", "1G"}},
+		{-1, []string{"1G", "1K", "2MB"}, true, []string{"1G", "2MB", "1K"}},
+		{-1, []string{"2K", "1kb", "3KB"}, false, []string{"1kb", "2K", "3KB"}},
+		{-1, []string{"2K", "1kb", "3KB"}, true, []string{"3KB", "2K", "1kb"}},
+		{0, []string{"2K", "1kb", "3KB"}, false, []string{"1kb", "2K", "3KB"}},
+		{0, []string{"2K", "1kb", "3KB"}, true, []string{"3KB", "2K", "1kb"}},
+		{1, []string{"2K", "1kb", "3KB"}, false, []string{"1kb", "2K", "3KB"}},
+		{1, []string{"2K", "1kb", "3KB"}, true, []string{"3KB", "2K", "1kb"}},
 		{-1, []string{"2K", "1kb", "a"}, false, []string{"a", "1kb", "2K"}},
 		{-1, []string{"2K", "1kb", "a"}, true, []string{"2K", "1kb", "a"}},
 		{0, []string{"2K", "1kb", "a"}, false, []string{"a", "1kb", "2K"}},
@@ -83,6 +84,7 @@ func Test_sortByNumberWithSuffix(t *testing.T) {
 	for _, table := range tables {
 		result := sortByNumberWithSuffix(table.numberColumn, table.lines, table.neededToReverse)
 
-		assert.Equal(t, result, table.res, fmt.Sprintf("number of column = %v, lines = %v, need to reverse = %v", table.numberColumn, table.lines, table.neededToReverse))
+		inputData := fmt.Sprintf("number of column = %v, lines = %v, need to reverse = %v", table.numberColumn, strings.Join(table.lines, "\n"), table.neededToReverse)
+		assert.Equal(t, result, table.res, inputData)
 	}
 }
