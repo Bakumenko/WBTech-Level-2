@@ -1,30 +1,34 @@
 package pkg
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func Test_getFieldForSortFromLines(t *testing.T) {
 	tables := []struct {
-		numberColumn int
-		line         string
-		res          string
+		numberColumn      int
+		line              string
+		resultSortedField string
+		resultSearched    bool
 	}{
-		{0, "a b c d", "a"},
-		{1, "a b c d", "b"},
-		{2, "a b c d", "c"},
-		{3, "a b c d", "d"},
-		{4, "a b c d", "a"},
-		{5, "a b c d", "a"},
-		{3, "", ""},
-		{-1, "", ""},
-		{-1, "a b c d", "a b c d"},
-		{2, "a   b    c      d", "c"},
+		{0, "a b c d", "a", true},
+		{1, "a b c d", "b", true},
+		{2, "a b c d", "c", true},
+		{3, "a b c d", "d", true},
+		{4, "a b c d", "", false},
+		{5, "a b c d", "", false},
+		{3, "", "", false},
+		{-1, "", "", false},
+		{-1, "a b c d", "a b c d", true},
+		{2, "a   b    c      d", "c", true},
 	}
 	for _, table := range tables {
-		result := getFieldForSortFromLines(table.numberColumn, table.line)
+		sortedField, searched := getFieldForSortFromLines(table.numberColumn, table.line)
 
-		assert.Equal(t, result, table.res)
+		inputDataInfo := fmt.Sprintf("number of column = %v, line = (%v)\n", table.numberColumn, table.line)
+		assert.Equal(t, sortedField, table.resultSortedField, inputDataInfo)
+		assert.Equal(t, searched, table.resultSearched, inputDataInfo)
 	}
 }

@@ -2,21 +2,19 @@ package pkg
 
 import "strings"
 
-func getFieldForSortFromLines(numberColumn int, line string) string {
+func getFieldForSortFromLines(numberColumn int, line string) (string, bool) {
 	if line == "" {
-		return ""
+		return "", false
 	}
 
-	var sortedField string
 	if numberColumn < 0 {
-		sortedField = line
+		return line, true
 	} else {
 		lineBySpace := strings.Fields(line)
 		if numberColumn < len(lineBySpace) {
-			sortedField = lineBySpace[numberColumn]
+			return lineBySpace[numberColumn], true
 		} else {
-			sortedField = lineBySpace[0]
+			return "", false
 		}
 	}
-	return sortedField
 }

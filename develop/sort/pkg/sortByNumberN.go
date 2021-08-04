@@ -5,41 +5,49 @@ import (
 	"strconv"
 )
 
-func sortByNumber(numberColumn int, lines []string, neededToReverse bool) ([]string, error) {
+func sortByNumber(numberColumn int, lines []string, neededToReverse bool) []string {
 	if numberColumn == -1 {
 		numberColumn = 0
 	}
 	var keys []int
-	var result []string
 	var notNumber []string
+
 	keyColumnToLineMap := map[int][]string{}
 	for _, line := range lines {
-		sortedField := getFieldForSortFromLines(numberColumn, line)
-		key, err := strconv.Atoi(sortedField)
-		if err != nil {
+		sortedField, searched := getFieldForSortFromLines(numberColumn, line)
+		if !searched {
 			notNumber = append(notNumber, line)
 		} else {
-			if _, ok := keyColumnToLineMap[key]; !ok {
-				keys = append(keys, key)
+			key, err := strconv.Atoi(sortedField)
+			if err != nil {
+				notNumber = append(notNumber, line)
+			} else {
+				if _, ok := keyColumnToLineMap[key]; !ok {
+					keys = append(keys, key)
+				}
+				keyColumnToLineMap[key] = append(keyColumnToLineMap[key], line)
 			}
-			keyColumnToLineMap[key] = append(keyColumnToLineMap[key], line)
 		}
 	}
 
-	sort.Strings(notNumber)
+	var result []string
 	if neededToReverse {
 		sort.Sort(sort.Reverse(sort.IntSlice(keys)))
+		sort.Sort(sort.Reverse(sort.StringSlice(notNumber)))
+
 		for _, key := range keys {
 			result = append(result, keyColumnToLineMap[key]...)
 		}
-		sort.Sort(sort.Reverse(sort.StringSlice(notNumber)))
 		result = append(result, notNumber...)
 	} else {
-		result = append(result, notNumber...)
 		sort.Ints(keys)
+		sort.Strings(notNumber)
+
+		result = append(result, notNumber...)
 		for _, key := range keys {
 			result = append(result, keyColumnToLineMap[key]...)
 		}
 	}
-	return result, nil
+
+	return result
 }

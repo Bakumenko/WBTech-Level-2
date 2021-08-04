@@ -19,6 +19,7 @@ var suffixes = map[string]int{
 }
 
 func parseStringWithSuffixInNumber(s string) (float64, error) {
+	s = strings.ToUpper(s)
 	for key, val := range suffixes {
 		i := strings.Index(s, key)
 		if i > -1 {
@@ -34,36 +35,46 @@ func parseStringWithSuffixInNumber(s string) (float64, error) {
 	return 0, errors.New("wrong number")
 }
 
-func sortByNumberWithSuffix(numberColumn int, lines []string, neededToReverse bool) ([]string, error) {
+func sortByNumberWithSuffix(numberColumn int, lines []string, neededToReverse bool) []string {
 	var keys []float64
 	keyColumnToLineMap := map[float64][]string{}
 	var result []string
 	var notNumber []string
+
 	for _, line := range lines {
-		sortedField := getFieldForSortFromLines(numberColumn, line)
-		key, err := parseStringWithSuffixInNumber(sortedField)
-		if err != nil {
+		sortedField, searched := getFieldForSortFromLines(numberColumn, line)
+		if !searched {
 			notNumber = append(notNumber, line)
 		} else {
-			if _, ok := keyColumnToLineMap[key]; !ok {
-				keys = append(keys, key)
+			key, err := parseStringWithSuffixInNumber(sortedField)
+			if err != nil {
+				notNumber = append(notNumber, line)
+			} else {
+				if _, ok := keyColumnToLineMap[key]; !ok {
+					keys = append(keys, key)
+				}
+				keyColumnToLineMap[key] = append(keyColumnToLineMap[key], line)
 			}
-			keyColumnToLineMap[key] = append(keyColumnToLineMap[key], line)
 		}
 	}
 
 	if neededToReverse {
 		sort.Sort(sort.Reverse(sort.Float64Slice(keys)))
+		sort.Sort(sort.Reverse(sort.StringSlice(notNumber)))
+
 		for _, key := range keys {
 			result = append(result, keyColumnToLineMap[key]...)
 		}
-		sort.Sort(sort.Reverse(sort.StringSlice(notNumber)))
 		result = append(result, notNumber...)
 	} else {
+		sort.Strings(notNumber)
+		sort.Float64s(keys)
+
 		result = append(result, notNumber...)
 		for _, key := range keys {
 			result = append(result, keyColumnToLineMap[key]...)
 		}
 	}
-	return result, nil
+
+	return result
 }

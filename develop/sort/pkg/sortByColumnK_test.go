@@ -27,11 +27,12 @@ func Test_sortByColumn(t *testing.T) {
 		{4, []string{"b a", "c b ", "a c"}, true, []string{"c b ", "b a", "a c"}},
 		{0, []string{"a a", "c b", "a c"}, false, []string{"a a", "a c", "c b"}},
 		{0, []string{""}, true, []string{""}},
-		{1, []string{"a", "b b", "c"}, false, []string{"a", "b b", "c"}},
+		{0, []string{"a", "b b", "c"}, false, []string{"a", "b b", "c"}},
+		{1, []string{"a", "b b", "c"}, false, []string{"a", "c", "b b"}},
 	}
 	for _, table := range tables {
 		result := sortByColumn(table.numberColumn, table.lines, table.neededToReverse)
 
-		assert.Equal(t, result, table.res, fmt.Sprintf("n = %v, lines = %v, bool = %v", table.numberColumn, table.lines, table.neededToReverse))
+		assert.Equal(t, result, table.res, fmt.Sprintf("number of column = %v, lines = %v, need to reverse = %v", table.numberColumn, table.lines, table.neededToReverse))
 	}
 }
