@@ -6,13 +6,14 @@ import (
 )
 
 func cutFields(lines []string, delimiter string, fields []int, outputLinesOnlyWithSeparator bool) []string {
+	if delimiter == "" {
+		return lines
+	}
+
 	var result []string
 	sort.Ints(fields)
 	for _, line := range lines {
-		if !strings.Contains(line, delimiter) && !outputLinesOnlyWithSeparator {
-			println()
-			result = append(result, line)
-		} else {
+		if strings.Contains(line, delimiter) {
 			lineSliceByDelimiter := strings.Split(line, delimiter)
 			var newLine string
 			for _, val := range fields {
@@ -26,6 +27,8 @@ func cutFields(lines []string, delimiter string, fields []int, outputLinesOnlyWi
 				}
 			}
 			result = append(result, newLine)
+		} else if !outputLinesOnlyWithSeparator {
+			result = append(result, line)
 		}
 	}
 	return result

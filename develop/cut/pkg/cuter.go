@@ -3,7 +3,6 @@ package pkg
 import (
 	"encoding/json"
 	"errors"
-	"strings"
 )
 
 type Cuter struct {
@@ -23,7 +22,15 @@ func InitCuter(lines []string, fs []string) (*Cuter, error) {
 }
 
 func (c *Cuter) GetText() string {
-	return strings.Join(c.resultLines, "\n")
+	var s string
+	for index, line := range c.resultLines {
+		if index == 0 {
+			s += line
+		} else {
+			s += "\n" + line
+		}
+	}
+	return s
 }
 
 func (c *Cuter) Start() error {
@@ -33,8 +40,12 @@ func (c *Cuter) Start() error {
 	}
 
 	if c.targetFields != nil {
-		needFields := cutFields(c.textByLines, c.delimiter, c.targetFields, c.outputLinesOnlyWithSeparator)
-		c.resultLines = needFields
+		if c.delimiter == "" {
+			c.resultLines = c.textByLines
+		} else {
+			needFields := cutFields(c.textByLines, c.delimiter, c.targetFields, c.outputLinesOnlyWithSeparator)
+			c.resultLines = needFields
+		}
 	} else {
 		return errors.New("input fields")
 	}
