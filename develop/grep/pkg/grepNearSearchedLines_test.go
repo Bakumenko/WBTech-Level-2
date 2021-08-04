@@ -3,12 +3,13 @@ package pkg
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
 func Test_grepLinesNearSearched(t *testing.T) {
 	tables := []struct {
-		textByLines  []string
+		lines        []string
 		targerString string
 		before       int
 		after        int
@@ -41,10 +42,10 @@ func Test_grepLinesNearSearched(t *testing.T) {
 		{[]string{"oleg", "ert", "rty", "QWE", "asd", "zxc"}, "e", 1, 2, true, true, true, true, []string{"2. ert", "3. rty", "4. QWE", "5. asd", "6. zxc"}, 3},
 	}
 	for _, table := range tables {
-		resultLines, resultCount, _ := grepLinesNearSearched(table.textByLines, table.targerString, table.before, table.after, table.ignoreCase, table.lineNumber, table.regular, table.invert)
+		resultLines, resultCount, _ := grepLinesNearSearched(table.lines, table.targerString, table.before, table.after, table.ignoreCase, table.lineNumber, table.regular, table.invert)
 
 		inputData := fmt.Sprintf("lines = (%v)\ntarget = (%v)\ncount before = %v, count after = %v\nignore case = %v, print line = %v, use regular = %v, invert = %v",
-			table.textByLines, table.targerString, table.before, table.after, table.ignoreCase, table.lineNumber, table.regular, table.invert)
+			strings.Join(table.lines, "\n"), table.targerString, table.before, table.after, table.ignoreCase, table.lineNumber, table.regular, table.invert)
 		assert.Equal(t, resultLines, table.resLines, inputData)
 		assert.Equal(t, resultCount, table.resCount, inputData)
 	}
