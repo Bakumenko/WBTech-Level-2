@@ -15,6 +15,7 @@ type Greper struct {
 	countOfLinesAfter  int
 	ignoreCase         bool
 	lineNumber         bool
+	count              int
 	needToCount        bool
 	invert             bool
 	regular            bool
@@ -32,9 +33,9 @@ func InitGreper(lines []string, fs []string, targerString string) (*Greper, erro
 	}, nil
 }
 
-func (g *Greper) GetText() string {
+func (g *Greper) GetResult() string {
 	if g.needToCount {
-		return strconv.Itoa(len(g.searchedLines))
+		return strconv.Itoa(g.count)
 	} else {
 		return strings.Join(g.searchedLines, "\n")
 	}
@@ -46,15 +47,17 @@ func (g *Greper) Start() error {
 		return err
 	}
 
-	if g.invert && g.countOfLinesBefore == 0 && g.countOfLinesAfter == 0 {
-		g.searchedLines, err = grepExcludeTargetStringFromLines(g.textByLines, g.targerString, g.ignoreCase, g.lineNumber, g.regular)
-		if err != nil {
-			return err
-		}
-	} else {
-		g.searchedLines, err = grepLinesNearSearched(g.textByLines, g.targerString, g.countOfLinesBefore, g.countOfLinesAfter,
-			g.ignoreCase, g.lineNumber, g.regular)
-	}
+	g.searchedLines, g.count, err = grepLinesNearSearched(g.textByLines, g.targerString, g.countOfLinesBefore, g.countOfLinesAfter,
+		g.ignoreCase, g.lineNumber, g.regular, g.invert)
+	//if g.invert && g.countOfLinesBefore == 0 && g.countOfLinesAfter == 0 {
+	//	g.searchedLines, err = grepExcludeTargetStringFromLines(g.textByLines, g.targerString, g.ignoreCase, g.lineNumber, g.regular)
+	//	if err != nil {
+	//		return err
+	//	}
+	//} else {
+	//	g.searchedLines, err = grepLinesNearSearched(g.textByLines, g.targerString, g.countOfLinesBefore, g.countOfLinesAfter,
+	//		g.ignoreCase, g.lineNumber, g.regular)
+	//}
 
 	return nil
 }

@@ -26,7 +26,7 @@ func readLinesFromSource(in io.Reader) ([]string, error) {
 }
 
 func main() {
-	if len(os.Args) < 3 {
+	if len(os.Args) < 2 {
 		println("input more data")
 		return
 	}
@@ -76,6 +76,6 @@ func main() {
 		return
 	}
 
-	result := sorter.GetText()
+	result := sorter.GetResult()
 	println(result)
 }
