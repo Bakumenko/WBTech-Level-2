@@ -16,18 +16,13 @@ func Test_cutFields(t *testing.T) {
 		res                          []string
 	}{
 		{[]string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, false, []string{"2 3", "b c", "б в", ", !"}},
+		{[]string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, true, []string{"2 3", "b c", "б в", ", !"}},
 		{[]string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}, "", []int{2, 3}, false, []string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}},
+		{[]string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}, "", []int{2, 3}, true, []string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}},
 		{[]string{"1 2 3 4", "a,b,c,d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, false, []string{"2 3", "a,b,c,d", "б в", ", !"}},
 		{[]string{"1 2 3 4", "a,b,c,d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, true, []string{"2 3", "б в", ", !"}},
-		{[]string{"1 2 3 4", "a    b    c    d", "а б в г", ". , ! ?"}, "\t", []int{2, 3}, false, []string{"1 2 3 4", "b    c", "а б в г", ". , ! ?"}},
-		{[]string{"1 2 3 4", "a    b    c    d", "а б в г", ". , ! ?"}, "\t", []int{2, 3}, true, []string{"b    c"}},
-		//{[]string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}, "", []int{2, 3}, false, []string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}},
-		//{[]string{"1 2 3 4", "a b c d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, false, []string{"2 3", "", "б в", ", !"}},
-		//{[]string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}, "", []int{2, 3}, false, []string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}},
-		//{[]string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, false, []string{"2 3", "", "б в", ", !"}},
-		//{[]string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}, "\t", []int{2, 3}, true, []string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}},
-		//{[]string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}, "", []int{2, 3}, true, []string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}},
-		//{[]string{"1 2 3 4", "a	b	c	d", "а б в г", ". , ! ?"}, " ", []int{2, 3}, true, []string{"2 3", "", "б в", ", !"}},
+		{[]string{"1 2 3 4", "a,b,c,d", "а б в г", ". : ! ?"}, ",", []int{2, 3}, false, []string{"1 2 3 4", "b,c", "а б в г", ". : ! ?"}},
+		{[]string{"1 2 3 4", "a,b,c,d", "а б в г", ". : ! ?"}, ",", []int{2, 3}, true, []string{"b,c"}},
 	}
 	for _, table := range tables {
 		result := cutFields(table.lines, table.delimiter, table.fields, table.outputLinesOnlyWithSeparator)
