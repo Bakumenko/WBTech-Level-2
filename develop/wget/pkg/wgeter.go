@@ -3,11 +3,8 @@ package pkg
 import (
 	"errors"
 	"io"
-	"net/http"
-	"net/url"
 	"os"
 	"strconv"
-	"strings"
 )
 
 type Wgeter struct {
@@ -23,34 +20,22 @@ func InitWgeter(url string, filename string) (*Wgeter, error) {
 }
 
 func (w *Wgeter) Start() error {
-	fullURLFile := w.url
-
-	fileURL, err := url.Parse(fullURLFile)
+	fileName, err := createFile(w.url, w.fileName)
 	if err != nil {
 		return err
 	}
-	path := fileURL.Path
-	if w.fileName == "" {
-		segments := strings.Split(path, "/")
-		w.fileName = segments[len(segments)-1]
-	}
+	w.fileName = fileName
 
-	file, err := os.Create(w.fileName)
+	resp, err := getResponse(w.url)
 	if err != nil {
 		return err
 	}
-	client := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
-			r.URL.Opaque = r.URL.Path
-			return nil
-		},
-	}
 
-	resp, err := client.Get(fullURLFile)
+	file, err := os.OpenFile(w.fileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer file.Close()
 
 	size, err := io.Copy(file, resp.Body)
 
