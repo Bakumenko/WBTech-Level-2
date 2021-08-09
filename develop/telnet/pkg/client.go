@@ -1,4 +1,4 @@
-package client
+package pkg
 
 import (
 	"bufio"
@@ -16,7 +16,6 @@ var (
 	errRequestToBadConnection = errors.New("go-telnet: can not get/send. probalby connection was closed by peer")
 )
 
-// Client ...
 type Client struct {
 	addr            string
 	timeout         time.Duration
@@ -26,7 +25,6 @@ type Client struct {
 	writer          io.Writer
 }
 
-// NewClient ...
 func NewClient(addr string, timeout time.Duration, inputDataReader io.Reader, writer io.Writer) *Client {
 	return &Client{
 		addr:            addr,
@@ -36,7 +34,6 @@ func NewClient(addr string, timeout time.Duration, inputDataReader io.Reader, wr
 	}
 }
 
-// BuildConnection ...
 func (c *Client) BuildConnection() error {
 	conn, err := net.DialTimeout("tcp", c.addr, c.timeout)
 	if err != nil {
@@ -48,8 +45,7 @@ func (c *Client) BuildConnection() error {
 	return nil
 }
 
-// Get ...
-func (c *Client) Get() error {
+func (c *Client) Receive() error {
 	text, err := c.connDataReader.ReadString('\n')
 	if err != nil {
 		if err == io.EOF {
@@ -63,7 +59,6 @@ func (c *Client) Get() error {
 	return nil
 }
 
-// Send ...
 func (c *Client) Send() error {
 	text, err := c.inputDataReader.ReadString('\n')
 	if err != nil {
@@ -76,7 +71,6 @@ func (c *Client) Send() error {
 
 }
 
-// Close ...
 func (c *Client) Close() error {
 	if err := c.conn.Close(); err != nil {
 		return errCloseConnection

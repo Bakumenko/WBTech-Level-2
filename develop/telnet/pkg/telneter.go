@@ -1,8 +1,7 @@
-package client
+package pkg
 
 import (
 	"io"
-	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -10,30 +9,22 @@ import (
 	"time"
 )
 
-const (
-	normalExitMsg    = "go-telnet: program trying to exit...."
-	endOfFileExitMsg = "go-telnet: recieved EOF"
-)
-
-// Runner ...
-type Runner struct {
+type Telneter struct {
 	host    string
 	port    string
 	timeout time.Duration
 }
 
-// New ...
-func New(host, port string, timeout time.Duration) *Runner {
-	return &Runner{
+func NewTelneter(host, port string, timeout time.Duration) *Telneter {
+	return &Telneter{
 		host:    host,
 		port:    port,
 		timeout: timeout,
 	}
 }
 
-// Start ...
-func (r *Runner) Start() error {
-	client := NewClient(r.host+":"+r.port, r.timeout, os.Stdin, os.Stdout)
+func (t *Telneter) Start() error {
+	client := NewClient(t.host+":"+t.port, t.timeout, os.Stdin, os.Stdout)
 	if err := client.BuildConnection(); err != nil {
 		return err
 	}
@@ -43,8 +34,8 @@ func (r *Runner) Start() error {
 	errorCh := make(chan error, 1)
 	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
 
-	go get(client, errorCh)
-	go send(client, errorCh)
+	go Receive(client, errorCh)
+	go Send(client, errorCh)
 
 	wg := new(sync.WaitGroup)
 	wg.Add(1)
@@ -54,12 +45,12 @@ func (r *Runner) Start() error {
 		for {
 			select {
 			case <-signalCh:
-				log.Println(normalExitMsg)
+				println("program trying to exit....")
 				return
 			case err := <-errorCh:
 				if err != nil {
 					if err == io.EOF {
-						log.Println(endOfFileExitMsg)
+						println("recieved EOF")
 					}
 					return
 				}
@@ -73,7 +64,7 @@ func (r *Runner) Start() error {
 	return nil
 }
 
-func send(c *Client, errorCh chan error) {
+func Send(c *Client, errorCh chan error) {
 	for {
 		if err := c.Send(); err != nil {
 			errorCh <- err
@@ -82,9 +73,9 @@ func send(c *Client, errorCh chan error) {
 	}
 }
 
-func get(c *Client, errorCh chan error) {
+func Receive(c *Client, errorCh chan error) {
 	for {
-		if err := c.Get(); err != nil {
+		if err := c.Receive(); err != nil {
 			errorCh <- err
 			return
 		}
